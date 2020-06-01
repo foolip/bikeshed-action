@@ -54,27 +54,22 @@ module.exports = require("os");
 /***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
 
 const core = __webpack_require__(470);
-const wait = __webpack_require__(949);
+const fs = __webpack_require__(747).promises;
 
-
-// most @actions toolkit packages have async methods
 async function run() {
-  try { 
-    const ms = core.getInput('milliseconds');
-    console.log(`Waiting ${ms} milliseconds ...`)
+  try {
+    const src = core.getInput('src');
+    console.log(`Building ${src} ...`);
 
-    core.debug((new Date()).toTimeString())
-    wait(parseInt(ms));
-    core.debug((new Date()).toTimeString())
-
-    core.setOutput('time', new Date().toTimeString());
-  } 
+    const body = await fs.readFile(src, 'utf8');
+    console.log(body);
+  }
   catch (error) {
     core.setFailed(error.message);
   }
 }
 
-run()
+run();
 
 
 /***/ }),
@@ -343,21 +338,10 @@ module.exports = require("path");
 
 /***/ }),
 
-/***/ 949:
+/***/ 747:
 /***/ (function(module) {
 
-let wait = function(milliseconds) {
-  return new Promise((resolve, reject) => {
-    if (typeof(milliseconds) !== 'number') { 
-      throw new Error('milleseconds not a number'); 
-    }
-
-    setTimeout(() => resolve("done!"), milliseconds)
-  });
-}
-
-module.exports = wait;
-
+module.exports = require("fs");
 
 /***/ })
 
