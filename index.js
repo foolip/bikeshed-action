@@ -1,18 +1,22 @@
 const core = require('@actions/core');
+const exec = require('@actions/exec');
 const fs = require('fs').promises;
 const glob = require('@actions/glob');
 
 async function run() {
   try {
+    const version = core.getInput('bikeshed-version');
+    const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
+    console.log(`Installing ${spec}`);
+    await exec.exec('pip3', ['install', spec]);
     const src = core.getInput('src');
     console.log(`Considering ${src}`);
     const globber = await glob.create(src);
     const files = await globber.glob();
     console.log(`Found ${files.length} file(s)`);
     for (const file of files) {
-      console.log(`${file} contents:`);
-      const body = await fs.readFile(file, 'utf8');
-      console.log(body);
+      console.log(`Building ${file}`);
+      await exec.exec('bikeshed', ['spec', file]);
     }
   }
   catch (error) {

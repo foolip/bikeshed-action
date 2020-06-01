@@ -1,6 +1,10 @@
 name: 'Bikeshed'
 description: 'Build Bikeshed'
 inputs:
+  bikeshed-version:
+    description: 'version of Bikeshed to use'
+    required: false
+    default: 'latest'
   src:
     description: 'input .bs file(s)'
     required: false
