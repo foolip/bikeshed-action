@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const glob = require('@actions/glob');
+const path = require('path');
 
 async function install(version) {
   const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
@@ -10,13 +11,15 @@ async function install(version) {
 }
 
 async function findFiles(pattern) {
+  const cwd = process.cwd();
   const globber = await glob.create(pattern);
   const files = await globber.glob();
   if (!files.length) {
     throw new Error(`No input files matching ${pattern} found`);
   }
   // TODO: filter to touched files if multiple
-  return files;
+  // return paths relative to the current directory
+  return files.map(file => path.relative(cwd, file));
 }
 
 async function build(file) {
