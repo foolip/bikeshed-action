@@ -2,25 +2,34 @@ const core = require('@actions/core');
 const exec = require('@actions/exec');
 const glob = require('@actions/glob');
 
-async function run() {
-  try {
-    const version = core.getInput('bikeshed-version');
-    const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
-    console.log(`Installing ${spec}`);
-    await exec.exec('pip3', ['--disable-pip-version-check', 'install', spec]);
-    const src = core.getInput('src');
-    console.log(`Considering ${src}`);
-    const globber = await glob.create(src);
-    const files = await globber.glob();
-    console.log(`Found ${files.length} file(s)`);
-    for (const file of files) {
-      console.log(`Building ${file}`);
-      await exec.exec('bikeshed', ['spec', file]);
-    }
+async function install(version) {
+  const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
+  console.log(`Installing ${spec}`);
+  await exec.exec('pip3', ['--disable-pip-version-check', 'install', spec]);
+}
+
+async function findFiles(pattern) {
+  const globber = await glob.create(pattern);
+  const files = await globber.glob();
+  if (!files.length) {
+    throw new Error(`No input files matching ${pattern} found`);
   }
-  catch (error) {
-    core.setFailed(error.message);
+  // TODO: filter to touched files if multiple
+  return files;
+}
+
+async function build(file) {
+  console.log(`Building ${file}`);
+  await exec.exec('bikeshed', ['spec', file]);
+}
+
+async function run() {
+  await install(core.getInput('bikeshed-version'));
+
+  const files = await findFiles(core.getInput('src'));
+  for (const file of files) {
+    await build(file);
   }
 }
 
-run();
+run().catch(error => core.setFailed(error.message));
