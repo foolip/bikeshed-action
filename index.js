@@ -4,8 +4,9 @@ const glob = require('@actions/glob');
 
 async function install(version) {
   const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
-  console.log(`Installing ${spec}`);
+  core.startGroup(`Installing ${spec}`);
   await exec.exec('pip3', ['--disable-pip-version-check', 'install', spec]);
+  core.endGroup();
 }
 
 async function findFiles(pattern) {
@@ -19,8 +20,9 @@ async function findFiles(pattern) {
 }
 
 async function build(file) {
-  console.log(`Building ${file}`);
+  core.startGroup(`Building ${file}`);
   await exec.exec('bikeshed', ['spec', file]);
+  core.endGroup();
 }
 
 async function run() {
