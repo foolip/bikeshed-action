@@ -2,9 +2,9 @@ name: 'Bikeshed'
 description: 'Build Bikeshed'
 inputs:
   src:
-    description: 'input .bs file'
+    description: 'input .bs file(s)'
     required: false
-    default: 'index.bs'
+    default: '**/*.bs'
 runs:
   using: 'node12'
   main: 'dist/index.js'
