@@ -1889,7 +1889,6 @@ function regExpEscape (s) {
 
 const core = __webpack_require__(470);
 const exec = __webpack_require__(986);
-const fs = __webpack_require__(747).promises;
 const glob = __webpack_require__(281);
 
 async function run() {
@@ -1897,7 +1896,7 @@ async function run() {
     const version = core.getInput('bikeshed-version');
     const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
     console.log(`Installing ${spec}`);
-    await exec.exec('pip3', ['install', spec]);
+    await exec.exec('pip3', ['--disable-pip-version-check', 'install', spec]);
     const src = core.getInput('src');
     console.log(`Considering ${src}`);
     const globber = await glob.create(src);

@@ -1,6 +1,5 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
-const fs = require('fs').promises;
 const glob = require('@actions/glob');
 
 async function run() {
@@ -8,7 +7,7 @@ async function run() {
     const version = core.getInput('bikeshed-version');
     const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
     console.log(`Installing ${spec}`);
-    await exec.exec('pip3', ['install', spec]);
+    await exec.exec('pip3', ['--disable-pip-version-check', 'install', spec]);
     const src = core.getInput('src');
     console.log(`Considering ${src}`);
     const globber = await glob.create(src);
