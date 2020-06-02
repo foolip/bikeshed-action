@@ -2,6 +2,7 @@ const core = require('@actions/core');
 const exec = require('@actions/exec');
 const glob = require('@actions/glob');
 const path = require('path');
+const vnu = require('vnu-jar');
 
 async function install(version) {
   const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
@@ -24,7 +25,15 @@ async function findFiles(pattern) {
 
 async function build(file) {
   core.startGroup(`Building ${file}`);
-  await exec.exec('bikeshed', ['spec', file]);
+  const outfile = path.basename(file, '.bs') + '.html';
+  await exec.exec('bikeshed', ['spec', file, outfile]);
+  core.endGroup();
+  return outfile;
+}
+
+async function validate(file) {
+  core.startGroup(`Validating ${file}`);
+  await exec.exec('java', ['-jar', vnu, file]);
   core.endGroup();
 }
 
@@ -32,8 +41,15 @@ async function run() {
   await install(core.getInput('bikeshed-version'));
 
   const files = await findFiles(core.getInput('src'));
+  const outfiles = [];
   for (const file of files) {
-    await build(file);
+    outfiles.push(await build(file));
+  }
+
+  if (core.getInput('validate')) {
+    for (const file of outfiles) {
+      validate(file);
+    }
   }
 }
 

@@ -26,7 +26,8 @@
   "dependencies": {
     "@actions/core": "^1.1.1",
     "@actions/exec": "^1.0.4",
-    "@actions/glob": "^0.1.0"
+    "@actions/glob": "^0.1.0",
+    "vnu-jar": "^20.5.29"
   },
   "devDependencies": {
     "@zeit/ncc": "^0.20.5",

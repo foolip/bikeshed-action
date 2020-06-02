@@ -1891,6 +1891,7 @@ const core = __webpack_require__(470);
 const exec = __webpack_require__(986);
 const glob = __webpack_require__(281);
 const path = __webpack_require__(622);
+const vnu = __webpack_require__(632);
 
 async function install(version) {
   const spec = version === 'latest' ? 'bikeshed' : `bikeshed==${version}`;
@@ -1913,7 +1914,15 @@ async function findFiles(pattern) {
 
 async function build(file) {
   core.startGroup(`Building ${file}`);
-  await exec.exec('bikeshed', ['spec', file]);
+  const outfile = path.basename(file, '.bs') + '.html';
+  await exec.exec('bikeshed', ['spec', file, outfile]);
+  core.endGroup();
+  return outfile;
+}
+
+async function validate(file) {
+  core.startGroup(`Validating ${file}`);
+  await exec.exec('java', ['-jar', vnu, file]);
   core.endGroup();
 }
 
@@ -1921,8 +1930,15 @@ async function run() {
   await install(core.getInput('bikeshed-version'));
 
   const files = await findFiles(core.getInput('src'));
+  const outfiles = [];
   for (const file of files) {
-    await build(file);
+    outfiles.push(await build(file));
+  }
+
+  if (core.getInput('validate')) {
+    for (const file of outfiles) {
+      validate(file);
+    }
   }
 }
 
@@ -3309,6 +3325,17 @@ function range(a, b, str) {
 /***/ (function(module) {
 
 module.exports = require("path");
+
+/***/ }),
+
+/***/ 632:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = __webpack_require__.ab + "vnu.jar";
+
 
 /***/ }),
 

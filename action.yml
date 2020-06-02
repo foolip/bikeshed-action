@@ -9,6 +9,10 @@ inputs:
     description: 'input .bs file(s)'
     required: false
     default: '**/*.bs'
+  validate:
+    description: 'validate output file(s)'
+    required: false
+    default: false
 runs:
   using: 'node12'
   main: 'dist/index.js'
